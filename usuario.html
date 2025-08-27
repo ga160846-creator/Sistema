@@ -7,25 +7,37 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .sidebar {
-            transition: all 0.3s ease;
-        }
-        .sidebar.collapsed {
-            width: 70px;
-        }
-        .sidebar.collapsed .sidebar-text,
-        .sidebar.collapsed .logo-text {
-            display: none;
-        }
-        .sidebar.collapsed .nav-item {
-            justify-content: center;
-        }
-        .main-content {
-            transition: all 0.3s ease;
-        }
-        .sidebar.collapsed + .main-content {
-            margin-left: 70px;
-        }
+        .flex-container {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.sidebar {
+    width: 16rem;
+    transition: width 0.3s ease;
+    flex-shrink: 0; /* Impede que a sidebar encolha */
+}
+
+.sidebar.collapsed {
+    width: 4.5rem;
+}
+
+.sidebar.collapsed .sidebar-text,
+.sidebar.collapsed .logo-text {
+    display: none;
+}
+
+.sidebar.collapsed .nav-item {
+    justify-content: center;
+}
+
+.main-content {
+    flex: 1; /* Ocupa todo o espaço restante */
+    transition: all 0.3s ease;
+    overflow-y: auto;
+}
+
     </style>
 </head>
 <body class="bg-gray-100 font-sans">
@@ -239,12 +251,9 @@ function inicializarEquipamentosPadrao() {
 // Toggle sidebar
 const toggleButton = document.getElementById('toggleSidebar');
 const sidebar = document.querySelector('.sidebar');
-const mainContent = document.querySelector('.main-content');
 
 toggleButton.addEventListener('click', () => {
     sidebar.classList.toggle('collapsed');
-    // Se quiser que o main-content ajuste automaticamente:
-    mainContent.classList.toggle('ml-64'); // ou remova se estiver usando margin fixa
 });
 
 // Renderiza a lista de equipamentos na aba
