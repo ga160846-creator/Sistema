@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Chamados de TI - Administração</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar {
+            transition: all 0.3s ease;
+        }
+        .sidebar.collapsed {
+            width: 70px;
+        }
+        .sidebar.collapsed .sidebar-text,
+        .sidebar.collapsed .logo-text {
+            display: none;
+        }
+        .sidebar.collapsed .nav-item {
+            justify-content: center;
+        }
+        .main-content {
+            transition: all 0.3s ease;
+        }
+        .sidebar.collapsed + .main-content {
+            margin-left: 70px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+<div class="flex h-screen overflow-hidden">
+  <!-- Botão de toggle -->
+<button id="toggleSidebar" class="absolute top-4 left-4 z-50 bg-indigo-600 text-white p-2 rounded hover:bg-indigo-700">
+    <i class="fas fa-bars"></i>
+</button>
+    <!-- Sidebar -->
+    <div class="sidebar bg-indigo-800 text-white w-64 flex flex-col">
+        <div class="p-4 flex items-center">
+            <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center">
+                
+            </div>
+            <span class="logo-text ml-3 text-xl font-bold">Chamados TI</span>
+        </div>
+        <nav class="flex-1 overflow-y-auto">
+            <ul class="space-y-1 p-2">
+                <li>
+                    <a href="#dashboard" onclick="showTab('dashboard')" class="nav-item flex items-center p-3 rounded-lg bg-indigo-900">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span class="sidebar-text ml-3">Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#chamados" onclick="showTab('chamados')" class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-700">
+                        <i class="fas fa-ticket-alt"></i>
+                        <span class="sidebar-text ml-3">Chamados</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#usuarios" onclick="showTab('usuarios')" class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-700">
+                        <i class="fas fa-users"></i>
+                        <span class="sidebar-text ml-3">Usuários</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#equipamentos" onclick="showTab('equipamentos')" class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-700">
+                        <i class="fas fa-desktop"></i>
+                        <span class="sidebar-text ml-3">Equipamentos</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#agendamento" onclick="showTab('agendamento')" class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-700">
+                        <i class="fas fa-calendar-check"></i>
+                        <span class="sidebar-text ml-3">Agendamento</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="./login.html" onclick="showTab('Sair')" class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-700">
+                        <span class="sidebar-text ml-3" style="color: red;">Sair</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content flex-1 p-6 overflow-y-auto">
+        <div id="dashboard" class="tab-content">
+            <h1 class="text-2xl font-bold mb-4">Bem-vindo ao Sistema de Chamados de TI</h1>
+            <p>Use o menu à esquerda para navegar entre as seções.</p><br>
+        <h2 class="text-2xl font-bold mb-4">Painel de Controle</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-white p-4 rounded shadow">
+            <h3 class="font-semibold">Total de Funcionários</h3>
+            <p id="totalFuncionarios" class="text-2xl">0</p>
+        </div>
+        <div class="bg-white p-4 rounded shadow">
+            <h3 class="font-semibold">Total de Equipamentos</h3>
+            <p id="totalEquipamentos" class="text-2xl">0</p>
+        </div>
+        <div class="bg-white p-4 rounded shadow">
+            <h3 class="font-semibold">Chamados</h3>
+            <p id="totalAgendamentos" class="text-2xl">0</p>
+        </div>
+        <div class="bg-white p-4 rounded shadow">
+            <h3 class="font-semibold">Última Atualização</h3>
+            <p id="ultimaAtualizacao" class="text-sm text-gray-600">Carregando...</p>
+        </div>
+    </div>
+</div>
+
+
+
+<div id="usuarios" class="tab-content hidden">
+  <h2 class="text-xl font-semibold mb-4">Funcionários</h2>
+  <div id="listaFuncionarios" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+</div>
+
+
+<div id="equipamentos" class="tab-content hidden">
+  <h2 class="text-xl font-semibold mb-4">Equipamentos</h2>
+  <div id="listaEquipamentosPrincipal" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+</div>
+
+
+<div id="agendamento" class="tab-content hidden">
+    <h2 class="text-xl font-semibold mb-4">Agendamento de Manutenções</h2>
+    <form class="space-y-4 mb-6" onsubmit="agendarManutencao(event)">
+       <label for="equipamentoAgendamento" class="block font-semibold">Equipamento:</label>
+<select id="equipamentoAgendamento" class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-400" required>
+  <option value="">Selecione um equipamento</option>
+</select>
+        <input type="text" id="Func" placeholder="Funcionário" class="w-full p-2 border rounded" autocomplete="off" required>
+        <input type="date" id="dataAgendamento" class="w-full p-2 border rounded" required>
+        <input type="time" id="horaAgendamento" class="w-full p-2 border rounded" required>
+        <textarea id="motivoAgendamento" class="w-full p-2 border rounded" placeholder="Motivo da manutenção" required></textarea>
+        <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded">Agendar</button>
+    </form>
+
+    <table class="w-full text-left bg-white shadow rounded">
+        <thead>
+            <tr class="bg-indigo-600 text-white">
+                <th class="p-2">Equipamento</th>
+                <th class="p-2">Data</th>
+                <th class="p-2">Hora</th>
+                <th class="p-2">Motivo</th>
+            </tr>
+        </thead>
+        <tbody id="listaAgendamentos"></tbody>
+    </table>
+</div>
+    
+
+
+        <div id="chamados" class="tab-content hidden">
+            <h2 class="text-xl font-semibold mb-4">Criar chamado</h2>
+            <form onsubmit="criarChamado(event)" class="space-y-4 mb-6">
+              <select id="nomeFuncionario" class="w-full p-2 border rounded mb-2" required>
+  <option value="" disabled selected>Nome do usuário</option>
+</select>
+                <input id="tituloChamado" type="text" class="w-full p-2 border rounded" placeholder="Título do chamado" autocomplete="off" required>   
+                <textarea id="descricaoChamado" class="w-full p-2 border rounded" placeholder="Descrição detalhada" required></textarea>
+                <input id="departamentoChamado" type="text" class="w-full p-2 border rounded" placeholder="Departamento" autocomplete="off" required>
+                <input id="Funçãochamado" type="text" class="w-full p-2 border rounded" placeholder="Função" autocomplete="off" required>
+                <input id="patrimonioChamado" type="text" class="w-full p-2 border rounded" placeholder="Número de patrimônio" autocomplete="off" required>
+               <p></p> Tipo de Problema:
+                <select id="statusChamado" class="w-full p-2 border rounded">
+                    <option value="Software">Software</option>
+                    <option value="Hardware">Hardware</option>
+                    <option value="Internet">Internet</option>
+                    <option value="Não sei">Não sei</option>
+                </select>
+                <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded">Criar Chamado</button>
+                <a href="https://wa.me/5521983262554" target="_blank" class="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded mb-4 transition">
+  <i class="fab fa-whatsapp"></i> Entrar em Contato via WhatsApp
+</a>
+
+            <H1 style="font-size: larger;"><strong>Chamados em Aberto</strong></H1>
+            </form>
+            <ul id="listaChamados" class="space-y-2"></ul>
+        </div>
+
+
+        <!-- Outras abas permanecem inalteradas -->
+
+    </div>
+<!-- Modal Equipamentos -->
+<div id="modalEquipamento" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+    <div class="bg-white rounded p-6 max-w-md w-full">
+        <h3 id="equipNome" class="text-xl font-bold mb-2"></h3>
+        <p id="equipDepto" class="mb-2"></p>
+        <p><strong>ID Patrimônio:</strong> <span id="equipId"></span></p>
+        <div class="text-right mt-4">
+            <button onclick="fecharModalEquip()" class="bg-red-500 text-white px-4 py-2 rounded">Fechar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+inicializarEquipamentosPadrao();
+
+    window.addEventListener('DOMContentLoaded', () => {
+  inicializarFuncionarios();
+  renderizarFuncionarios(); // Certifique-se que essa função já existe e popula a lista
+});
+
+    
+   window.addEventListener('DOMContentLoaded', () => {
+  inicializarEquipamentos();
+  renderizarEquipamentos(); // ou qualquer função que popula a tabela
+});
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+  renderizarFuncionarios();
+});
+
+// Inicializa os equipamentos padrão
+function inicializarEquipamentosPadrao() {
+  let equipamentos = JSON.parse(localStorage.getItem('equipamentos')) || [];
+
+  // Se não houver equipamentos salvos, cria lista padrão
+  if (equipamentos.length === 0) {
+    const equipamentosPadrao = [
+      { nome: 'Máquina A - 21257', tipo: 'Notebook' },
+      { nome: 'Máquina B - 24976', tipo: 'Desktop' },
+      { nome: 'Máquina C - 24176', tipo: 'Servidor' },
+      { nome: 'Máquina D - 21796', tipo: 'Notebook' },
+      { nome: 'Máquina E - 21785', tipo: 'Desktop' },
+      { nome: 'Máquina F - 20149', tipo: 'Servidor' },
+      { nome: 'Máquina G - 24552', tipo: 'Notebook' },
+      { nome: 'Máquina H - 21456', tipo: 'Desktop' }
+    ];
+
+    // Salva no localStorage
+    localStorage.setItem('equipamentos', JSON.stringify(equipamentosPadrao));
+  }
+}
+// Toggle sidebar
+const toggleButton = document.getElementById('toggleSidebar');
+const sidebar = document.querySelector('.sidebar');
+const mainContent = document.querySelector('.main-content');
+
+toggleButton.addEventListener('click', () => {
+    sidebar.classList.toggle('collapsed');
+    // Se quiser que o main-content ajuste automaticamente:
+    mainContent.classList.toggle('ml-64'); // ou remova se estiver usando margin fixa
+});
+
+// Renderiza a lista de equipamentos na aba
+function renderizarEquipamentos() {
+  const container = document.getElementById('listaEquipamentosPrincipal');
+  container.innerHTML = ''; // Limpa conteúdo anterior
+
+  const equipamentos = JSON.parse(localStorage.getItem('equipamentos')) || [];
+
+  // Se não houver equipamentos, mostra mensagem
+  if (equipamentos.length === 0) {
+    container.innerHTML = '<p class="text-gray-600">Nenhum equipamento cadastrado.</p>';
+    return;
+  }
+
+  // Para cada equipamento, cria o elemento HTML
+  equipamentos.forEach(eq => {
+    const div = document.createElement('div');
+    div.className = 'p-4 bg-white rounded shadow mb-4';
+
+    // Agora o nome já inclui o número de série
+    div.innerHTML = `
+      <h3 class="font-bold text-lg">${eq.nome}</h3>
+      <p class="text-gray-700">Tipo: ${eq.tipo}</p>
+    `;
+
+    container.appendChild(div);
+  });
+}
+
+// Chamada ao carregar a página
+inicializarEquipamentosPadrao();
+renderizarEquipamentos();
+
+
+
+
+function carregarFuncionariosNoSelect() {
+  const select = document.getElementById('nomeFuncionario');
+
+  // Se o select não existir, evita erro
+  if (!select) return;
+
+  const funcionarios = JSON.parse(localStorage.getItem('funcionarios')) || [];
+
+  // Limpa as opções antigas
+  select.innerHTML = '<option value="" disabled selected>Selecione um funcionário</option>';
+
+  // Adiciona cada funcionário como opção
+  funcionarios.forEach(func => {
+    const option = document.createElement('option');
+    option.value = func.nome;
+    option.textContent = func.nome;
+    select.appendChild(option);
+  });
+}
+
+
+// Chamar ao carregar a página ou ao abrir o formulário
+document.addEventListener('DOMContentLoaded', carregarFuncionariosNoSelect);
+
+
+function inicializarFuncionariosPadrao() {
+  let funcionarios = JSON.parse(localStorage.getItem('funcionarios')) || [];
+
+  if (funcionarios.length ===0) {
+    const funcionariosPadrao = [
+      { nome: 'João Silva', cargo: 'Técnico de Suporte', id: 'F001' },
+      { nome: 'Maria Oliveira', cargo: 'Analista de Sistemas', id: 'F002' },
+      { nome: 'Carlos Souza', cargo: 'Desenvolvedor Back-end', id: 'F003' },
+      { nome: 'Ana Lima', cargo: 'Desenvolvedora Front-end', id: 'F004' },
+      { nome: 'Lucas Pereira', cargo: 'Administrador de Redes', id: 'F005' },
+      { nome: 'Fernanda Costa', cargo: 'Gerente de Projetos', id: 'F006' },
+      { nome: 'Bruno Rocha', cargo: 'Analista de Infraestrutura', id: 'F007' },
+      { nome: 'Juliana Martins', cargo: 'Especialista em Segurança', id: 'F008' }
+    ];
+
+    const faltando = funcionariosPadrao.slice(funcionarios.length);
+    funcionarios.push(...faltando);
+    localStorage.setItem('funcionarios', JSON.stringify(funcionarios));
+  }
+}
+
+
+
+inicializarFuncionariosPadrao();
+
+function renderizarFuncionarios() {
+  const container = document.getElementById('listaFuncionarios');
+  container.innerHTML = '';
+
+  const funcionarios = JSON.parse(localStorage.getItem('funcionarios')) || [];
+
+  if (funcionarios.length === 0) {
+    container.innerHTML = '<p class="text-gray-600">Nenhum funcionário cadastrado.</p>';
+    return;
+  }
+
+  funcionarios.forEach(f => {
+    const div = document.createElement('div');
+    div.className = 'p-4 bg-white rounded shadow mb-4';
+
+    div.innerHTML = `
+      <h3 class="font-bold text-lg">${f.nome}</h3>
+      <p class="text-gray-700">${f.cargo}</p>
+      <p class="text-sm text-gray-500"><strong>ID:</strong> ${f.id}</p>
+    `;
+
+    container.appendChild(div);
+  });
+}
+
+
+
+
+/*script chamados*/ 
+    let chamados = JSON.parse(localStorage.getItem('chamados')) || [];
+
+    function salvarChamados() {
+        localStorage.setItem('chamados', JSON.stringify(chamados));
+    }
+
+  function criarChamado(e) {
+    e.preventDefault();
+
+    const titulo = document.getElementById('tituloChamado').value;
+    const status = document.getElementById('statusChamado').value;
+    const funcao = document.getElementById('Funçãochamado').value;
+    const nomeFuncionario = document.getElementById('nomeFuncionario').value; // 👈 Novo campo
+const descricao = document.getElementById('descricaoChamado').value;
+const equipamento = document.getElementById('patrimonioChamado').value;
+
+chamados.push({ titulo, status, funcao, nomeFuncionario, descricao, equipamento });
+
+
+
+    salvarChamados();
+    renderizarChamados();
+    e.target.reset();
+}
+
+
+ function renderizarChamados() {
+  const lista = document.getElementById('listaChamados');
+  lista.innerHTML = '';
+
+  if (chamados.length === 0) {
+    lista.innerHTML = '<li>Nenhum chamado registrado.</li>';
+    return;
+  }
+
+  chamados.slice().reverse().forEach((c, index) => {
+    const li = document.createElement('li');
+    li.className = 'bg-gray-50 p-3 rounded border';
+
+    const texto = document.createElement('div');
+    texto.textContent = `#${chamados.length - index}: ${c.titulo} - ${c.status}`;
+
+    const feedback = document.createElement('div');
+    feedback.className = 'text-sm text-gray-600 mt-1';
+    feedback.innerHTML = `<strong>Feedback:</strong> ${c.feedback || 'Nenhum'}`;
+
+    li.appendChild(texto);
+    li.appendChild(feedback);
+    lista.appendChild(li);
+  });
+}
+
+    /*script usuários*/
+   function abrirModal(nome, cargo, id) {
+  document.getElementById('modalNome').textContent = nome;
+  document.getElementById('modalCargo').textContent = cargo;
+  document.getElementById('modalId').textContent = id;
+
+  document.getElementById('modalFuncionario').classList.remove('hidden');
+}
+    function fecharModal() {
+        document.getElementById('modalFuncionario').classList.add('hidden');
+    }
+
+    /*script Equipamentos*/
+     function abrirModal(nome, cargo, id) {
+        document.getElementById('modalNome').textContent = nome;
+        document.getElementById('modalCargo').textContent = cargo;
+        document.getElementById('modalId').textContent = id;
+        document.getElementById('modalFuncionario').classList.remove('hidden');
+    }
+
+    function fecharModal() {
+        document.getElementById('modalFuncionario').classList.add('hidden');
+    }
+
+    function abrirModalEquip(nome, depto, id) {
+        document.getElementById('equipNome').textContent = nome;
+        document.getElementById('equipDepto').textContent = `Departamento: ${depto}`;
+        document.getElementById('equipId').textContent = id;
+        document.getElementById('modalEquipamento').classList.remove('hidden');
+    }
+
+    function fecharModalEquip() {
+        document.getElementById('modalEquipamento').classList.add('hidden');
+    }
+    /*srcipt Agendamentos*/ 
+
+   
+    let agendamentos = JSON.parse(localStorage.getItem('agendamentos')) || [];
+
+    function salvarAgendamentos() {
+        localStorage.setItem('agendamentos', JSON.stringify(agendamentos));
+    }
+
+    function agendarManutencao(e) {
+        e.preventDefault();
+        const equipamento = document.getElementById('equipamentoAgendamento').value;
+        const data = document.getElementById('dataAgendamento').value;
+        const hora = document.getElementById('horaAgendamento').value;
+        const motivo = document.getElementById('motivoAgendamento').value;
+        const Func = document.getElementById('Func').value;
+        agendamentos.push({ equipamento, data, hora, motivo, Func });
+        salvarAgendamentos();
+        renderizarAgendamentos();
+        e.target.reset();
+    }
+
+    function renderizarAgendamentos() {
+    const lista = document.getElementById('listaAgendamentos');
+    lista.innerHTML = '';
+
+    if (agendamentos.length === 0) {
+        lista.innerHTML = '<tr><td colspan="4" class="p-2 text-center">Nenhum agendamento registrado.</td></tr>';
+        return;
+    }
+
+    agendamentos.forEach((a, index) => {
+        const tr = document.createElement('tr');
+
+        const tdEquip = document.createElement('td');
+        tdEquip.className = 'p-2 border';
+        tdEquip.textContent = a.equipamento;
+
+        const tdData = document.createElement('td');
+        tdData.className = 'p-2 border';
+        tdData.textContent = a.data;
+
+        const tdHora = document.createElement('td');
+        tdHora.className = 'p-2 border';
+        tdHora.textContent = a.hora;
+
+        const tdMotivo = document.createElement('td');
+        tdMotivo.className = 'p-2 border';
+        tdMotivo.innerHTML = `<div>${a.motivo}</div>
+            <div class="text-sm text-gray-600 mt-1"><strong>Feedback:</strong> ${a.feedback || 'Nenhum'}</div>`;
+
+        tr.appendChild(tdEquip);
+        tr.appendChild(tdData);
+        tr.appendChild(tdHora);
+        tr.appendChild(tdMotivo);
+
+        lista.appendChild(tr);
+    });
+}
+
+
+
+    /*script Dashboard*/ 
+    
+function atualizarDashboard() {
+    const chamados = JSON.parse(localStorage.getItem('chamados')) || [];
+
+    // Conta apenas chamados que não estão concluídos ou resolvidos
+    const chamadosAbertos = chamados.filter(c => c.status !== 'Concluído' && c.status !== 'Resolvido');
+    const totalAgendamentos = chamadosAbertos.length;
+
+    // Conta funcionários (baseado na lista principal)
+    const funcionarios = document.querySelectorAll('#listaFuncionarios > div');
+    document.getElementById('totalFuncionarios').textContent = funcionarios.length;
+
+    // Conta equipamentos (baseado na lista principal)
+    const equipamentos = document.querySelectorAll('#listaEquipamentosPrincipal > div');
+    document.getElementById('totalEquipamentos').textContent = equipamentos.length;
+
+    // Total de agendamentos
+    document.getElementById('totalAgendamentos').textContent = totalAgendamentos;
+
+    // Atualiza data/hora da última atualização
+    const agora = new Date();
+    const dataFormatada = agora.toLocaleDateString() + ' ' + agora.toLocaleTimeString();
+    document.getElementById('ultimaAtualizacao').textContent = dataFormatada;
+}
+
+// Executa no carregamento
+document.addEventListener('DOMContentLoaded', atualizarDashboard);
+
+// Exemplo: função para atualizar sempre que algo mudar
+function dadosAlterados() {
+    atualizarDashboard();
+}
+
+// Função para alternar abas
+function showTab(tabId) {
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.add('hidden');
+    });
+
+    const target = document.getElementById(tabId);
+    if (target) {
+        target.classList.remove('hidden');
+    }
+
+    switch (tabId) {
+        case 'dashboard':
+            atualizarDashboard();
+            break;
+        case 'chamados':
+            renderizarChamados();
+            break;
+        case 'agendamento':
+            renderizarAgendamentos();
+            break;
+        case 'equipamentos':
+            renderizarEquipamentos();
+            break;
+    }
+}
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // Mostra a aba inicial
+    showTab('dashboard');
+
+    // Inicializa todos os dados visuais
+    atualizarDashboard();
+    renderizarChamados();
+    renderizarAgendamentos();
+    // renderizarEquipamentos(); // descomente se existir
+  });
+
+
+
+
+// Chame essa função ao carregar a aba
+document.addEventListener('DOMContentLoaded', renderizarEquipamentos);
+
+function carregarEquipamentosNoFormulario() {
+  const equipamentos = JSON.parse(localStorage.getItem('equipamentos')) || [];
+  const selectEquipamento = document.getElementById('equipamentoAgendamento');
+
+  // Limpar opções anteriores (exceto o primeiro)
+  selectEquipamento.innerHTML = '<option value="">Selecione um equipamento</option>';
+
+  equipamentos.forEach((equip) => {
+    const nomeCompleto = `${equip.nome} - ${equip.numeroSerie}`;
+    const option = document.createElement('option');
+    option.value = nomeCompleto;
+    option.textContent = nomeCompleto;
+    selectEquipamento.appendChild(option);
+  });
+}
+
+
+  // Chama ao carregar a página
+  window.addEventListener('DOMContentLoaded', carregarEquipamentosNoFormulario);
+
+  // Você pode também chamar isso sempre que a aba de agendamento for exibida, por exemplo:
+  function mostrarAbaAgendamento() {
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+    document.getElementById('agendamento').classList.remove('hidden');
+    carregarEquipamentosNoFormulario(); // Atualiza equipamentos
+  }
+  document.getElementById('enviarChamado').addEventListener('click', () => {
+  const nome = document.getElementById('nomeChamado').value;
+  const equipamento = document.getElementById('equipamentoChamado').value;
+  const problema = document.getElementById('problemaChamado').value;
+  const funcao = document.getElementById('Funçãochamado').value;
+
+  if (!nome || !equipamento || !problema || !funcao) {
+    alert("Por favor, preencha todos os campos.");
+    return;
+  }
+
+  const chamado = {
+    nome,
+    equipamento,
+    problema,
+    funcao,
+    data: new Date().toLocaleString()
+  };
+
+  const chamados = JSON.parse(localStorage.getItem('chamados')) || [];
+  chamados.push(chamado);
+  localStorage.setItem('chamados', JSON.stringify(chamados));
+
+  alert("Chamado enviado com sucesso!");
+  document.getElementById('formChamado').reset();
+  atualizarChamados();
+});
+inicializarEquipamentosPadrao();
+renderizarEquipamentos();
+
+
+</script>
+</body>
+</html>

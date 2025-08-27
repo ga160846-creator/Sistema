@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Controle de TI - Visualizador</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans min-h-screen p-6">
+  <div class="max-w-6xl mx-auto space-y-8">
+    <h1 class="text-4xl font-bold text-center text-blue-700">Controle Geral de TI</h1>
+
+    <!-- CHAMADOS + AGENDAMENTOS LADO A LADO -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- CHAMADOS -->
+      <div class="bg-white rounded-2xl shadow-lg p-6">
+        <h2 class="text-2xl font-semibold text-blue-600 mb-4">Chamados Registrados</h2>
+
+        <label for="filtroPrioridade" class="block font-medium text-gray-700 mb-1">Filtrar por Prioridade:</label>
+        <select id="filtroPrioridade" class="mb-6 p-2 border border-gray-300 rounded-md">
+          <option value="Todas">Todas</option>
+          <option value="Alta">Alta</option>
+          <option value="Média">Média</option>
+          <option value="Baixa">Baixa</option>
+        </select>
+        <ul id="listaChamados" class="space-y-4"></ul>
+      </div>
+
+      <!-- AGENDAMENTOS -->
+      <div class="bg-white rounded-2xl shadow-lg p-6">
+        <h2 class="text-2xl font-semibold text-green-600 mb-4">Agendamentos de Manutenção</h2>
+        <ul id="listaAgendamentos" class="space-y-4"></ul>
+      </div>
+    </div>
+
+    <!-- FORMULÁRIO DE AGENDAMENTO -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 mt-6">
+      <h2 class="text-2xl font-semibold text-purple-600 mb-4">Agendar Chamado</h2>
+      <form id="formAgendamento" class="space-y-4">
+        <select id="chamadoParaAgendar" class="w-full p-2 border rounded" required>
+          <option value="">Selecione um chamado...</option>
+        </select>
+        <input type="date" id="dataAgendamento" class="w-full p-2 border rounded" required>
+        <button type="submit" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">Agendar</button>
+      </form>
+
+      <!-- LISTA DE CHAMADOS AGENDADOS -->
+      <div id="listaAgendadosContainer" class="mt-6 hidden">
+        <h3 class="text-xl font-semibold text-gray-800 mb-3">Chamados Agendados</h3>
+        <ul id="listaAgendados" class="space-y-3"></ul>
+      </div>
+    </div>
+
+    <!-- CADASTRO FUNCIONÁRIOS -->
+    <div class="bg-white rounded shadow p-4 mt-6">
+      <h2 class="text-xl font-semibold mb-4">Cadastrar Novo Funcionário</h2>
+      <form id="formFuncionario" class="space-y-2">
+        <input type="text" id="nomeFuncionario" class="w-full p-2 border rounded" placeholder="Nome completo" autocomplete="off" required>
+        <input type="text" id="cargoFuncionario" class="w-full p-2 border rounded" placeholder="Cargo ou função" autocomplete="off" required>
+        <input type="text" id="idFuncionario" class="w-full p-2 border rounded" placeholder="ID do funcionário" autocomplete="off" required>
+        <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded">Cadastrar</button>
+      </form>
+    </div>
+
+    <h2 class="text-xl font-semibold mt-6 mb-2">Funcionários Cadastrados</h2>
+    <div id="listaFuncionariosSecundario" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+
+   <!-- CADASTRO EQUIPAMENTOS -->
+<h2 class="text-xl font-semibold mt-6 mb-4">Cadastrar Novo Equipamento</h2>
+<form id="formEquipamento" class="space-y-4 mb-6">
+  <input type="text" id="nomeEquipamento" class="w-full p-2 border rounded" placeholder="Nome do equipamento - N°Máquina" autocomplete="off" required>
+  <input type="text" id="tipoEquipamento" class="w-full p-2 border rounded" placeholder="Tipo do equipamento" autocomplete="off" required>
+  <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Cadastrar</button>
+</form>
+
+<h2 class="text-xl font-semibold mb-2">Equipamentos Cadastrados</h2>
+<div id="listaEquipamentosSecundario" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+
+    <!-- BOTÃO SAIR -->
+    <button onclick="sair()" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-all duration-200 absolute right-6 top-6">
+      Sair
+    </button>
+  </div>
+  
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+  carregarFuncionariosSecundario();
+});
+
+    const chamados = JSON.parse(localStorage.getItem('chamados')) || [];
+    const agendamentos = JSON.parse(localStorage.getItem('agendamentos')) || [];
+
+  // Carregar chamados e preencher select de agendamento
+    function carregarChamadosParaAgendamento() {
+      const chamados = JSON.parse(localStorage.getItem("chamados")) || [];
+      const select = document.getElementById("chamadoParaAgendar");
+      select.innerHTML = '<option value="">Selecione um chamado...</option>';
+
+      chamados.forEach((chamado, index) => {
+        if (chamado.prioridade === "Baixa" || chamado.prioridade === "Média" || chamado.prioridade === "Alta") {
+          select.innerHTML += `<option value="${index}">${chamado.titulo} - ${chamado.prioridade}</option>`;
+        }
+      });
+    }
+
+    // Agendar chamado
+    document.getElementById("formAgendamento").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const chamados = JSON.parse(localStorage.getItem("chamados")) || [];
+      const agendados = JSON.parse(localStorage.getItem("chamadosAgendados")) || [];
+
+      const chamadoIndex = document.getElementById("chamadoParaAgendar").value;
+      const data = document.getElementById("dataAgendamento").value;
+
+      if (chamadoIndex === "" || data === "") return;
+
+      const chamado = chamados[chamadoIndex];
+      agendados.push({ ...chamado, data });
+
+      localStorage.setItem("chamadosAgendados", JSON.stringify(agendados));
+      exibirChamadosAgendados();
+      this.reset();
+    });
+
+    // Exibir chamados agendados
+    function exibirChamadosAgendados() {
+      const agendados = JSON.parse(localStorage.getItem("chamadosAgendados")) || [];
+      const container = document.getElementById("listaAgendadosContainer");
+      const lista = document.getElementById("listaAgendados");
+
+      lista.innerHTML = "";
+      if (agendados.length === 0) {
+        container.classList.add("hidden");
+        return;
+      }
+
+      container.classList.remove("hidden");
+      agendados.forEach((chamado, index) => {
+        lista.innerHTML += `
+          <li class="p-3 border rounded flex justify-between items-center">
+            <div>
+              <strong>${chamado.titulo}</strong> - ${chamado.prioridade} | <span class="text-gray-500">${chamado.data}</span>
+            </div>
+            <button onclick="concluirChamado(${index})" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-grey-600">Remover</button>
+          </li>
+        `;
+      });
+    }
+
+    // Concluir chamado
+    function concluirChamado(index) {
+      let agendados = JSON.parse(localStorage.getItem("chamadosAgendados")) || [];
+      agendados.splice(index, 1);
+      localStorage.setItem("chamadosAgendados", JSON.stringify(agendados));
+      exibirChamadosAgendados();
+    }
+
+    // Inicialização
+    carregarChamadosParaAgendamento();
+    exibirChamadosAgendados();
+    
+    function salvarChamados() {
+      localStorage.setItem('chamados', JSON.stringify(chamados));
+    }
+
+    function salvarAgendamentos() {
+      localStorage.setItem('agendamentos', JSON.stringify(agendamentos));
+    }
+
+    function renderizarChamados() {
+      const lista = document.getElementById('listaChamados');
+      const filtro = document.getElementById('filtroPrioridade').value;
+      lista.innerHTML = '';
+
+      const chamadosFiltrados = chamados.filter(c => {
+        return filtro === 'Todas' || c.prioridade === filtro;
+      });
+
+      if (chamadosFiltrados.length === 0) {
+        lista.innerHTML = '<li class="text-gray-500">Nenhum chamado encontrado.</li>';
+        return;
+      }
+
+      chamadosFiltrados.reverse().forEach((c, i) => {
+        const index = chamados.length - 1 - i;
+        const li = document.createElement('li');
+        li.className = 'bg-gray-50 p-4 rounded-lg border border-gray-300 space-y-2';
+
+        const titulo = document.createElement('div');
+titulo.innerHTML = `
+  <strong>#Chamado N°${index + 1}</strong>: ${c.titulo} - <em>${c.status}</em><br>  
+  <strong>Funcionário:</strong> ${c.nomeFuncionario || 'Não informado'}<br>
+  <strong>Função:</strong> ${c.funcao || 'Não informada'}<br>
+  <strong>Descrição:</strong> ${c.descricao || 'Não informada'}<br>
+  <strong>Equipamento:</strong> ${c.equipamento || 'Não informada'}
+
+`;
+
+
+        const prioridade = document.createElement('select');
+        prioridade.className = 'border p-1 rounded-md';
+        prioridade.innerHTML = `
+          <option value="">Sem prioridade</option>
+          <option value="Alta">Alta</option>
+          <option value="Média">Média</option>
+          <option value="Baixa">Baixa</option>
+        `;
+        prioridade.value = c.prioridade || '';
+        prioridade.onchange = () => {
+          chamados[index].prioridade = prioridade.value;
+          salvarChamados();
+          renderizarChamados();
+        };
+
+        const feedback = document.createElement('input');
+        feedback.type = 'text';
+        feedback.placeholder = 'Deixe um feedback...';
+        feedback.className = 'w-full p-2 border rounded';
+        feedback.value = c.feedback || '';
+
+        const btnFeedback = document.createElement('button');
+        btnFeedback.textContent = 'Enviar Feedback';
+        btnFeedback.className = 'bg-blue-600 text-white px-3 py-1 rounded';
+        btnFeedback.onclick = () => {
+          chamados[index].feedback = feedback.value;
+          salvarChamados();
+          alert('Feedback salvo!');
+          renderizarChamados();
+        };
+
+        const btnExcluir = document.createElement('button');
+        btnExcluir.textContent = 'Concluído';
+        btnExcluir.className = 'text-green-800 hover:underline ml-2';
+        btnExcluir.onclick = () => {
+          if (confirm('este chamado foi concluído?')) {
+            chamados.splice(index, 1);
+            salvarChamados();
+            renderizarChamados();
+          }
+        };
+
+        li.appendChild(titulo);
+        li.appendChild(prioridade);
+        li.appendChild(feedback);
+        li.appendChild(btnFeedback);
+        li.appendChild(btnExcluir);
+        lista.appendChild(li);
+      });
+    }
+
+    function renderizarAgendamentos() {
+      const lista = document.getElementById('listaAgendamentos');
+      lista.innerHTML = '';
+
+      if (agendamentos.length === 0) {
+        lista.innerHTML = '<li class="text-gray-500">Nenhum agendamento encontrado.</li>';
+        return;
+      }
+
+      agendamentos.slice().reverse().forEach((a, i) => {
+        const index = agendamentos.length - 1 - i;
+        const li = document.createElement('li');
+        li.className = 'bg-gray-50 p-4 rounded-lg border border-gray-300 space-y-2';
+
+        const dados = document.createElement('div');
+        dados.innerHTML = `<strong>Funcionário</strong>:${a.Func} <br> <strong>${a.equipamento}</strong> - ${a.data} às ${a.hora}<br><em>${a.motivo}</em>`;
+
+        const feedback = document.createElement('input');
+        feedback.type = 'text';
+        feedback.placeholder = 'Deixe um feedback...';
+        feedback.className = 'w-full p-2 border rounded';
+        feedback.value = a.feedback || '';
+
+        const btnFeedback = document.createElement('button');
+        btnFeedback.textContent = 'Enviar Feedback';
+        btnFeedback.className = 'bg-green-600 text-white px-3 py-1 rounded';
+        btnFeedback.onclick = () => {
+          agendamentos[index].feedback = feedback.value;
+          salvarAgendamentos();
+          alert('Feedback salvo!');
+          renderizarAgendamentos();
+        };
+
+        const btnExcluir = document.createElement('button');
+        btnExcluir.textContent = 'Excluir';
+        btnExcluir.className = 'text-red-600 hover:underline ml-2';
+        btnExcluir.onclick = () => {
+          if (confirm('Excluir este agendamento?')) {
+            agendamentos.splice(index, 1);
+            salvarAgendamentos();
+            renderizarAgendamentos();
+          }
+        };
+
+        li.appendChild(dados);
+        li.appendChild(feedback);
+        li.appendChild(btnFeedback);
+        li.appendChild(btnExcluir);
+        lista.appendChild(li);
+      });
+    }
+
+function sair() {
+  if (confirm('Deseja realmente sair?')) {
+    window.location.href = 'login.html'; 
+  }
+}
+
+    document.getElementById('filtroPrioridade').addEventListener('change', renderizarChamados);
+
+    renderizarChamados();
+    renderizarAgendamentos();
+
+    // Função para salvar no localStorage
+function salvarFuncionarios(funcionarios) {
+  localStorage.setItem('funcionarios', JSON.stringify(funcionarios));
+}
+
+// Evento de cadastro
+document.getElementById('formFuncionario').addEventListener('submit', function (e) {
+  e.preventDefault();
+  
+  const nome = document.getElementById('nomeFuncionario').value.trim();
+  const cargo = document.getElementById('cargoFuncionario').value.trim();
+  const id = document.getElementById('idFuncionario').value.trim();
+  const funcionarios = JSON.parse(localStorage.getItem('funcionarios')) || [];
+
+  funcionarios.push({
+    nome,
+    cargo,
+    id,
+  });
+
+  salvarFuncionarios(funcionarios);
+  alert('Funcionário cadastrado com sucesso!');
+  e.target.reset();
+  carregarFuncionariosSecundario();
+});
+
+
+
+function carregarFuncionariosSecundario() {
+  const container = document.getElementById('listaFuncionariosSecundario');
+  container.innerHTML = '';
+
+  const funcionarios = JSON.parse(localStorage.getItem('funcionarios')) || [];
+
+  if (funcionarios.length === 0) {
+    container.innerHTML = '<p class="text-gray-600">Nenhum funcionário cadastrado.</p>';
+    return;
+  }
+
+  funcionarios.forEach((f, index) => {
+    const div = document.createElement('div');
+    div.className = 'p-4 bg-white rounded shadow flex justify-between items-center';
+
+    const info = document.createElement('div');
+    info.innerHTML = `<h3 class="font-bold">${f.nome}</h3><p>${f.cargo}</p>`;
+
+    const btn = document.createElement('button');
+    btn.textContent = 'Remover';
+    btn.className = 'bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600';
+    btn.onclick = () => removerFuncionario(f.id);
+
+    div.appendChild(info);
+    div.appendChild(btn);
+    container.appendChild(div);
+  });
+}
+
+function removerFuncionario(id) {
+  let funcionarios = JSON.parse(localStorage.getItem('funcionarios')) || [];
+  funcionarios = funcionarios.filter(f => f.id !== id);
+  salvarFuncionarios(funcionarios);
+  carregarFuncionariosSecundario();
+}
+
+function salvarEquipamentos(equipamentos) {
+  localStorage.setItem('equipamentos', JSON.stringify(equipamentos));
+}
+
+function carregarEquipamentosSecundario() {
+  const container = document.getElementById('listaEquipamentosSecundario');
+  container.innerHTML = '';
+
+  const equipamentos = JSON.parse(localStorage.getItem('equipamentos')) || [];
+
+  if (equipamentos.length === 0) {
+    container.innerHTML = '<p class="text-gray-600">Nenhum equipamento cadastrado.</p>';
+    return;
+  }
+
+  equipamentos.forEach((eq) => {
+    const div = document.createElement('div');
+    div.className = 'p-4 bg-white rounded shadow flex justify-between items-center';
+
+    const info = document.createElement('div');
+    info.innerHTML = `
+      <h3 class="font-bold">${eq.nome}</h3>
+      <p>Tipo: ${eq.tipo}</p>
+    `;
+
+    const btnRemover = document.createElement('button');
+    btnRemover.textContent = 'Remover';
+    btnRemover.className = 'bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600';
+    btnRemover.onclick = () => removerEquipamento(eq.id);
+
+    div.appendChild(info);
+    div.appendChild(btnRemover);
+    container.appendChild(div);
+  });
+}
+function removerEquipamento(id) {
+  let equipamentos = JSON.parse(localStorage.getItem('equipamentos')) || [];
+  equipamentos = equipamentos.filter(eq => eq.id !== id);
+  salvarEquipamentos(equipamentos);
+  carregarEquipamentosSecundario();
+  alert('Equipamento removido com sucesso!');
+} 
+
+// Evento de cadastro
+document.getElementById('formEquipamento').addEventListener('submit', function (e) {
+  e.preventDefault();
+
+  const nome = document.getElementById('nomeEquipamento').value.trim();
+  const tipo = document.getElementById('tipoEquipamento').value.trim();
+
+  if (!nome || !tipo) {
+    alert('Preencha todos os campos');
+    return;
+  }
+
+  const equipamentos = JSON.parse(localStorage.getItem('equipamentos')) || [];
+
+  equipamentos.push({
+    id: Date.now().toString(),
+    nome,
+    tipo
+  });
+
+  salvarEquipamentos(equipamentos);
+  alert('Equipamento cadastrado com sucesso!');
+  e.target.reset();
+  carregarEquipamentosSecundario();
+});
+
+// Carregar equipamentos ao iniciar a página
+document.addEventListener('DOMContentLoaded', carregarEquipamentosSecundario);
+  </script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login - SGTI</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center font-sans" style="background: rgb(68, 68, 230);">
+
+
+  <!-- Cartão de Login -->
+  <div class="bg-white w-full max-w-md p-8 rounded-2xl shadow-xl">
+    <img src="./img/SGTI.png" alt="Logo" class="w-64 h-auto mx-auto" style="width: 250px;">
+
+    <form id="login-form" class="space-y-4">
+      <div>
+        <label for="username" class="block text-sm font-medium text-gray-700">Usuário:</label>
+        <input type="text" id="username" name="username" autocomplete="off" required
+          class="mt-1 w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+      </div>
+      <div>
+        <label for="password" class="block text-sm font-medium text-gray-700">Senha:</label>
+        <input type="password" id="password" name="password" required
+          class="mt-1 w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+      </div>
+      <button type="submit"
+        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-md transition duration-200">
+        Entrar
+      </button>
+    </form>
+    <div id="error-message" class="text-red-600 text-sm mt-4 text-center"></div>
+  </div>
+
+  <!-- Rodapé -->
+  <footer class="mt-6 text-sm text-gray-500" style="color: rgb(255, 255, 255);">@Todos os direitos reservados - Grupo SGTI</footer>
+
+  <script>
+    document.getElementById('login-form').addEventListener('submit', function(event) {
+      event.preventDefault();
+      const user = document.getElementById('username').value.trim().toLowerCase();
+      const password = document.getElementById('password').value;
+      const errorMessage = document.getElementById('error-message');
+
+      const users = {
+        usuario: '1234',
+        mario: 'abcd',
+        ti: 'senha'
+      };
+
+      if (users[user] && users[user] === password) {
+        window.location.href = `${user}.html`;
+      } else {
+        errorMessage.textContent = 'Usuário ou senha incorretos.';
+      }
+    });
+  </script>
+</body>
+</html>
+
+
