@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Login - SGTI</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center font-sans" style="background: rgb(68, 68, 230);">
-
+<body class="bg-blue-700 min-h-screen flex flex-col items-center justify-center font-sans">
 
   <!-- Cartão de Login -->
   <div class="bg-white w-full max-w-md p-8 rounded-2xl shadow-xl">
@@ -29,13 +29,22 @@
         Entrar
       </button>
     </form>
+
+    <button id="forgot-btn" class="mt-2 w-full text-blue-600 underline hover:text-blue-800 text-sm">Esqueci minha senha</button>
+
     <div id="error-message" class="text-red-600 text-sm mt-4 text-center"></div>
   </div>
 
   <!-- Rodapé -->
-  <footer class="mt-6 text-sm text-gray-500" style="color: rgb(255, 255, 255);">@Todos os direitos reservados - Grupo SGTI</footer>
+  <footer class="mt-6 text-sm text-white">@Todos os direitos reservados - Grupo SGTI</footer>
 
   <script>
+    // Inicializa EmailJS
+    (function(){
+      emailjs.init('zVynt3XMOiAfrOV5Y'); // Seu user ID EmailJS
+    })();
+
+    // Login
     document.getElementById('login-form').addEventListener('submit', function(event) {
       event.preventDefault();
       const user = document.getElementById('username').value.trim().toLowerCase();
@@ -54,8 +63,24 @@
         errorMessage.textContent = 'Usuário ou senha incorretos.';
       }
     });
+
+    // Esqueci minha senha
+    document.getElementById('forgot-btn').addEventListener('click', function() {
+      const email = prompt('Digite seu e-mail para recuperar a senha:');
+      if(email && email.includes('@')) {
+        const templateParams = { to_email: email };
+
+        emailjs.send('SGTI', 'template_5civemx', templateParams)
+          .then(function(response) {
+            alert('Um e-mail foi enviado com instruções para recuperar sua senha.');
+          }, function(error) {
+            alert('Erro ao enviar e-mail: ' + JSON.stringify(error));
+          });
+      } else if(email !== null){
+        alert('Digite um e-mail válido.');
+      }
+    });
   </script>
+
 </body>
 </html>
-
-
