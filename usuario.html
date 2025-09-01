@@ -1,212 +1,221 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Chamados de TI - Administração</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        .flex-container {
-    display: flex;
-    height: 100vh;
-    overflow: hidden;
-}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sistema de Chamados de TI - Administração</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-.sidebar {
-    width: 16rem;
-    transition: width 0.3s ease;
-    flex-shrink: 0; /* Impede que a sidebar encolha */
-}
+  <style>
+    /* Container flex principal para evitar barra branca no mobile */
+    .flex-container {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
 
-.sidebar.collapsed {
-    width: 4.5rem;
-}
+    .sidebar {
+      width: 16rem;              /* largura quando ABERTA */
+      transition: width 0.3s ease;
+      flex-shrink: 0;
+    }
+    .sidebar.collapsed {
+      width: 4.5rem;             /* largura quando FECHADA */
+    }
+    .sidebar.collapsed .sidebar-text,
+    .sidebar.collapsed .logo-text {
+      display: none;             /* esconde textos quando fechada */
+    }
+    .sidebar.collapsed .nav-item {
+      justify-content: center;
+    }
 
-.sidebar.collapsed .sidebar-text,
-.sidebar.collapsed .logo-text {
-    display: none;
-}
-
-.sidebar.collapsed .nav-item {
-    justify-content: center;
-}
-
-.main-content {
-    flex: 1; /* Ocupa todo o espaço restante */
-    transition: all 0.3s ease;
-    overflow-y: auto;
-}
-
-    </style>
+    .main-content {
+      flex: 1;                   /* ocupa o restante do espaço */
+      transition: all 0.3s ease;
+      overflow-y: auto;
+    }
+  </style>
 </head>
+
 <body class="bg-gray-100 font-sans">
-<div class="flex h-screen overflow-hidden">
-  <!-- Botão de toggle -->
-<button id="toggleSidebar" class="absolute top-4 left-4 z-50 bg-indigo-600 text-white p-2 rounded hover:bg-indigo-700">
+
+  <!-- Botão de toggle (fixo) -->
+  <button id="toggleSidebar"
+          class="fixed top-4 left-4 z-50 bg-indigo-600 text-white p-2 rounded hover:bg-indigo-700"
+          aria-label="Alternar menu" aria-expanded="false">
     <i class="fas fa-bars"></i>
-</button>
-    <!-- Sidebar -->
-    <div class="sidebar bg-indigo-800 text-white w-64 flex flex-col">
-        <div class="p-4 flex items-center">
-            <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center">
-                
-            </div>
-            <span class="logo-text ml-3 text-xl font-bold">Chamados TI</span>
-        </div>
-        <nav class="flex-1 overflow-y-auto">
-            <ul class="space-y-1 p-2">
-                <li>
-                    <a href="#dashboard" onclick="showTab('dashboard')" class="nav-item flex items-center p-3 rounded-lg bg-indigo-900">
-                        <i class="fas fa-tachometer-alt"></i>
-                        <span class="sidebar-text ml-3">Dashboard</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#chamados" onclick="showTab('chamados')" class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-700">
-                        <i class="fas fa-ticket-alt"></i>
-                        <span class="sidebar-text ml-3">Chamados</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#usuarios" onclick="showTab('usuarios')" class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-700">
-                        <i class="fas fa-users"></i>
-                        <span class="sidebar-text ml-3">Usuários</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#equipamentos" onclick="showTab('equipamentos')" class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-700">
-                        <i class="fas fa-desktop"></i>
-                        <span class="sidebar-text ml-3">Equipamentos</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#agendamento" onclick="showTab('agendamento')" class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-700">
-                        <i class="fas fa-calendar-check"></i>
-                        <span class="sidebar-text ml-3">Agendamento</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="./index.html" onclick="showTab('Sair')" class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-700">
-                        <span class="sidebar-text ml-3" style="color: red;">Sair</span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
+  </button>
+
+  <!-- Container principal -->
+  <div class="flex-container">
+    <!-- Sidebar (já começa FECHADA com 'collapsed') -->
+    <div class="sidebar collapsed bg-indigo-800 text-white flex flex-col">
+      <div class="p-4 flex items-center">
+        <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center"></div>
+        <span class="logo-text ml-3 text-xl font-bold">Chamados TI</span>
+      </div>
+
+      <nav class="flex-1 overflow-y-auto">
+        <ul class="space-y-1 p-2">
+          <li>
+            <a href="#dashboard" onclick="showTab('dashboard')" class="nav-item flex items-center p-3 rounded-lg bg-indigo-900">
+              <i class="fas fa-tachometer-alt"></i>
+              <span class="sidebar-text ml-3">Dashboard</span>
+            </a>
+          </li>
+          <li>
+            <a href="#chamados" onclick="showTab('chamados')" class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-700">
+              <i class="fas fa-ticket-alt"></i>
+              <span class="sidebar-text ml-3">Chamados</span>
+            </a>
+          </li>
+          <li>
+            <a href="#usuarios" onclick="showTab('usuarios')" class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-700">
+              <i class="fas fa-users"></i>
+              <span class="sidebar-text ml-3">Usuários</span>
+            </a>
+          </li>
+          <li>
+            <a href="#equipamentos" onclick="showTab('equipamentos')" class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-700">
+              <i class="fas fa-desktop"></i>
+              <span class="sidebar-text ml-3">Equipamentos</span>
+            </a>
+          </li>
+          <li>
+            <a href="#agendamento" onclick="showTab('agendamento')" class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-700">
+              <i class="fas fa-calendar-check"></i>
+              <span class="sidebar-text ml-3">Agendamento</span>
+            </a>
+          </li>
+          <li>
+            <a href="./index.html" class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-700">
+              <span class="sidebar-text ml-3" style="color: red;">Sair</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
     </div>
 
     <!-- Main Content -->
-    <div class="main-content flex-1 p-6 overflow-y-auto">
-        <div id="dashboard" class="tab-content">
-            <h1 class="text-2xl font-bold mb-4">Bem-vindo ao Sistema de Chamados de TI</h1>
-            <p>Use o menu à esquerda para navegar entre as seções.</p><br>
+    <div class="main-content p-6 overflow-y-auto">
+      <div id="dashboard" class="tab-content">
+        <h1 class="text-2xl font-bold mb-4">Bem-vindo ao Sistema de Chamados de TI</h1>
+        <p>Use o menu à esquerda para navegar entre as seções.</p><br>
         <h2 class="text-2xl font-bold mb-4">Painel de Controle</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="bg-white p-4 rounded shadow">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-white p-4 rounded shadow">
             <h3 class="font-semibold">Total de Funcionários</h3>
             <p id="totalFuncionarios" class="text-2xl">0</p>
-        </div>
-        <div class="bg-white p-4 rounded shadow">
+          </div>
+          <div class="bg-white p-4 rounded shadow">
             <h3 class="font-semibold">Total de Equipamentos</h3>
             <p id="totalEquipamentos" class="text-2xl">0</p>
-        </div>
-        <div class="bg-white p-4 rounded shadow">
+          </div>
+          <div class="bg-white p-4 rounded shadow">
             <h3 class="font-semibold">Chamados</h3>
             <p id="totalAgendamentos" class="text-2xl">0</p>
-        </div>
-        <div class="bg-white p-4 rounded shadow">
+          </div>
+          <div class="bg-white p-4 rounded shadow">
             <h3 class="font-semibold">Última Atualização</h3>
             <p id="ultimaAtualizacao" class="text-sm text-gray-600">Carregando...</p>
+          </div>
         </div>
-    </div>
-</div>
+      </div>
 
+      <div id="usuarios" class="tab-content hidden">
+        <h2 class="text-xl font-semibold mb-4">Funcionários</h2>
+        <div id="listaFuncionarios" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+      </div>
 
+      <div id="equipamentos" class="tab-content hidden">
+        <h2 class="text-xl font-semibold mb-4">Equipamentos</h2>
+        <div id="listaEquipamentosPrincipal" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+      </div>
 
-<div id="usuarios" class="tab-content hidden">
-  <h2 class="text-xl font-semibold mb-4">Funcionários</h2>
-  <div id="listaFuncionarios" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-</div>
+      <div id="agendamento" class="tab-content hidden">
+        <h2 class="text-xl font-semibold mb-4">Agendamento de Manutenções</h2>
+        <form class="space-y-4 mb-6" onsubmit="agendarManutencao(event)">
+          <label for="equipamentoAgendamento" class="block font-semibold">Equipamento:</label>
+          <select id="equipamentoAgendamento" class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-400" required>
+            <option value="">Selecione um equipamento</option>
+          </select>
+          <input type="text" id="Func" placeholder="Funcionário" class="w-full p-2 border rounded" autocomplete="off" required>
+          <input type="date" id="dataAgendamento" class="w-full p-2 border rounded" required>
+          <input type="time" id="horaAgendamento" class="w-full p-2 border rounded" required>
+          <textarea id="motivoAgendamento" class="w-full p-2 border rounded" placeholder="Motivo da manutenção" required></textarea>
+          <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded">Agendar</button>
+        </form>
 
-
-<div id="equipamentos" class="tab-content hidden">
-  <h2 class="text-xl font-semibold mb-4">Equipamentos</h2>
-  <div id="listaEquipamentosPrincipal" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-</div>
-
-
-<div id="agendamento" class="tab-content hidden">
-    <h2 class="text-xl font-semibold mb-4">Agendamento de Manutenções</h2>
-    <form class="space-y-4 mb-6" onsubmit="agendarManutencao(event)">
-       <label for="equipamentoAgendamento" class="block font-semibold">Equipamento:</label>
-<select id="equipamentoAgendamento" class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-400" required>
-  <option value="">Selecione um equipamento</option>
-</select>
-        <input type="text" id="Func" placeholder="Funcionário" class="w-full p-2 border rounded" autocomplete="off" required>
-        <input type="date" id="dataAgendamento" class="w-full p-2 border rounded" required>
-        <input type="time" id="horaAgendamento" class="w-full p-2 border rounded" required>
-        <textarea id="motivoAgendamento" class="w-full p-2 border rounded" placeholder="Motivo da manutenção" required></textarea>
-        <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded">Agendar</button>
-    </form>
-
-    <table class="w-full text-left bg-white shadow rounded">
-        <thead>
+        <table class="w-full text-left bg-white shadow rounded">
+          <thead>
             <tr class="bg-indigo-600 text-white">
-                <th class="p-2">Equipamento</th>
-                <th class="p-2">Data</th>
-                <th class="p-2">Hora</th>
-                <th class="p-2">Motivo</th>
+              <th class="p-2">Equipamento</th>
+              <th class="p-2">Data</th>
+              <th class="p-2">Hora</th>
+              <th class="p-2">Motivo</th>
             </tr>
-        </thead>
-        <tbody id="listaAgendamentos"></tbody>
-    </table>
-</div>
-    
+          </thead>
+          <tbody id="listaAgendamentos"></tbody>
+        </table>
+      </div>
 
+      <div id="chamados" class="tab-content hidden">
+        <h2 class="text-xl font-semibold mb-4">Criar chamado</h2>
+        <form onsubmit="criarChamado(event)" class="space-y-4 mb-6">
+          <select id="nomeFuncionario" class="w-full p-2 border rounded mb-2" required>
+            <option value="" disabled selected>Nome do usuário</option>
+          </select>
+          <input id="tituloChamado" type="text" class="w-full p-2 border rounded" placeholder="Título do chamado" autocomplete="off" required>
+          <textarea id="descricaoChamado" class="w-full p-2 border rounded" placeholder="Descrição detalhada" required></textarea>
+          <input id="departamentoChamado" type="text" class="w-full p-2 border rounded" placeholder="Departamento" autocomplete="off" required>
+          <input id="Funçãochamado" type="text" class="w-full p-2 border rounded" placeholder="Função" autocomplete="off" required>
+          <input id="patrimonioChamado" type="text" class="w-full p-2 border rounded" placeholder="Número de patrimônio" autocomplete="off" required>
+          <p>Tipo de Problema:</p>
+          <select id="statusChamado" class="w-full p-2 border rounded">
+            <option value="Software">Software</option>
+            <option value="Hardware">Hardware</option>
+            <option value="Internet">Internet</option>
+            <option value="Não sei">Não sei</option>
+          </select>
+          <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded">Criar Chamado</button>
+          <a href="https://wa.me/5521983262554" target="_blank" class="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded mb-4 transition">
+            <i class="fab fa-whatsapp"></i> Entrar em Contato via WhatsApp
+          </a>
 
-        <div id="chamados" class="tab-content hidden">
-            <h2 class="text-xl font-semibold mb-4">Criar chamado</h2>
-            <form onsubmit="criarChamado(event)" class="space-y-4 mb-6">
-              <select id="nomeFuncionario" class="w-full p-2 border rounded mb-2" required>
-  <option value="" disabled selected>Nome do usuário</option>
-</select>
-                <input id="tituloChamado" type="text" class="w-full p-2 border rounded" placeholder="Título do chamado" autocomplete="off" required>   
-                <textarea id="descricaoChamado" class="w-full p-2 border rounded" placeholder="Descrição detalhada" required></textarea>
-                <input id="departamentoChamado" type="text" class="w-full p-2 border rounded" placeholder="Departamento" autocomplete="off" required>
-                <input id="Funçãochamado" type="text" class="w-full p-2 border rounded" placeholder="Função" autocomplete="off" required>
-                <input id="patrimonioChamado" type="text" class="w-full p-2 border rounded" placeholder="Número de patrimônio" autocomplete="off" required>
-               <p></p> Tipo de Problema:
-                <select id="statusChamado" class="w-full p-2 border rounded">
-                    <option value="Software">Software</option>
-                    <option value="Hardware">Hardware</option>
-                    <option value="Internet">Internet</option>
-                    <option value="Não sei">Não sei</option>
-                </select>
-                <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded">Criar Chamado</button>
-                <a href="https://wa.me/5521983262554" target="_blank" class="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded mb-4 transition">
-  <i class="fab fa-whatsapp"></i> Entrar em Contato via WhatsApp
-</a>
+          <h1 class="text-lg font-bold">Chamados em Aberto</h1>
+        </form>
+        <ul id="listaChamados" class="space-y-2"></ul>
+      </div>
 
-            <H1 style="font-size: larger;"><strong>Chamados em Aberto</strong></H1>
-            </form>
-            <ul id="listaChamados" class="space-y-2"></ul>
-        </div>
-
-
-        <!-- Outras abas permanecem inalteradas -->
-
-    </div>
-<!-- Modal Equipamentos -->
-<div id="modalEquipamento" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
-    <div class="bg-white rounded p-6 max-w-md w-full">
-        <h3 id="equipNome" class="text-xl font-bold mb-2"></h3>
-        <p id="equipDepto" class="mb-2"></p>
-        <p><strong>ID Patrimônio:</strong> <span id="equipId"></span></p>
-        <div class="text-right mt-4">
+      <!-- Modal Equipamentos -->
+      <div id="modalEquipamento" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+        <div class="bg-white rounded p-6 max-w-md w-full">
+          <h3 id="equipNome" class="text-xl font-bold mb-2"></h3>
+          <p id="equipDepto" class="mb-2"></p>
+          <p><strong>ID Patrimônio:</strong> <span id="equipId"></span></p>
+          <div class="text-right mt-4">
             <button onclick="fecharModalEquip()" class="bg-red-500 text-white px-4 py-2 rounded">Fechar</button>
+          </div>
         </div>
+      </div>
     </div>
-</div>
+  </div>
+
+<script>
+  // Toggle sidebar
+  const toggleButton = document.getElementById('toggleSidebar');
+  const sidebar = document.querySelector('.sidebar');
+
+  toggleButton.addEventListener('click', () => {
+      sidebar.classList.toggle('collapsed');
+  });
+</script>
+
+</body>
+
 
 <script>
 inicializarEquipamentosPadrao();
@@ -248,13 +257,7 @@ function inicializarEquipamentosPadrao() {
     localStorage.setItem('equipamentos', JSON.stringify(equipamentosPadrao));
   }
 }
-// Toggle sidebar
-const toggleButton = document.getElementById('toggleSidebar');
-const sidebar = document.querySelector('.sidebar');
 
-toggleButton.addEventListener('click', () => {
-    sidebar.classList.toggle('collapsed');
-});
 
 // Renderiza a lista de equipamentos na aba
 function renderizarEquipamentos() {
@@ -656,4 +659,3 @@ renderizarEquipamentos();
 </script>
 </body>
 </html>
-
